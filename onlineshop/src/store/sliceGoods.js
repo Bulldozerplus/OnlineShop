@@ -1,5 +1,6 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import axios from "axios";
+import {loadingState} from "../const/const";
 
 export const fetchGoodsData = createAsyncThunk(
     'goods/fetchGoods',
@@ -8,6 +9,7 @@ export const fetchGoodsData = createAsyncThunk(
         return responseDataGoods.data
     }
 )
+
 
 const goodsSlice = createSlice({
     name: 'goods',
@@ -18,14 +20,17 @@ const goodsSlice = createSlice({
     },
     extraReducers: {
         [fetchGoodsData.pending]: (state) => {
-            state.status = 'loading'
+            state.status = loadingState.loading
             state.error = null
         },
         [fetchGoodsData.rejected]: (state, action) => {
+            state.error = true
+            state.status = loadingState.reject
         },
         [fetchGoodsData.fulfilled]: (state, action) => {
-            state.status = 'resolve'
+            state.status = loadingState.complete
             state.goods = action.payload
+            state.error = null
             console.log(action.payload)
         },
     }
