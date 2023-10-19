@@ -10,7 +10,7 @@ const goodsSlice = createSlice({
         status: null,
     },
         reducers: {
-            fetchStart(state, action) {
+            fetchStart(state) {
                 state.status = loadingState.loading
             },
             fetchSuccess(state, action) {
@@ -19,7 +19,7 @@ const goodsSlice = createSlice({
                     state.goods = action.payload
                 }
             },
-            fetchFail(state, action) {
+            fetchFail(state) {
                 state.status = loadingState.reject
             }
         }

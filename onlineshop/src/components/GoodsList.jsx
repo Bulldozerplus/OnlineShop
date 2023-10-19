@@ -14,7 +14,6 @@ const GoodsList = () => {
 
 
     const goodsPrepareData = useSelector(state => state.goods.goods)
-    console.log(goodsPrepareData)
     const goodsStates = useSelector(state => state.goods)
 
     const goodsData = goodsPrepareData.map(goods => ({...goods, key: goods.id})).map(goods => {
