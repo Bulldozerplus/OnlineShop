@@ -25,13 +25,13 @@ const goodsSlice = createSlice({
 
 })
 
-export const {fetchStart, fetchSuccess, fetchFail} = goodsSlice.actions
+ const {fetchStart, fetchSuccess, fetchFail} = goodsSlice.actions
 
 export const fetchGoods = () => async (dispatch) => {
     try {
         dispatch(fetchStart())
         const response = await axios.get('http://localhost:4002/goods')
-        console.log(response.data)
+        console.log(response)
         dispatch(fetchSuccess(response.data))
     } catch (error) {
         dispatch(fetchFail(error))
