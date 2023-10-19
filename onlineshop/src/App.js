@@ -1,7 +1,7 @@
 import './App.css';
 import {useDispatch} from "react-redux";
 import {useEffect} from "react";
-import {fetchGoodsData} from "./store/sliceGoods";
+import {fetchGoods} from "./store/sliceGoods";
 import {Col, Row} from "antd";
 import GoodsList from "./components/GoodsList";
 
@@ -10,8 +10,10 @@ function App() {
 
     const dispatch = useDispatch()
 
+
+
     useEffect(() => {
-        dispatch(fetchGoodsData())
+        dispatch(fetchGoods())
     }) 
 
 

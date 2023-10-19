@@ -1,14 +1,6 @@
-import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import {createSlice} from "@reduxjs/toolkit";
 import axios from "axios";
 import {loadingState} from "../const/const";
-
-export const fetchGoodsData = createAsyncThunk(
-    'goods/fetchGoods',
-    async function () {
-        const responseDataGoods = await axios.get('http://localhost:4002/goods')
-        return responseDataGoods.data
-    }
-)
 
 
 const goodsSlice = createSlice({
@@ -16,25 +8,35 @@ const goodsSlice = createSlice({
     initialState: {
         goods: [],
         status: null,
-        error: null
     },
-    extraReducers: {
-        [fetchGoodsData.pending]: (state) => {
-            state.status = loadingState.loading
-            state.error = null
-        },
-        [fetchGoodsData.rejected]: (state, action) => {
-            state.error = true
-            state.status = loadingState.reject
-        },
-        [fetchGoodsData.fulfilled]: (state, action) => {
+
+    fetchStart(state, action) {
+        state.status = loadingState.loading
+    },
+    fetchSuccess(state, action) {
+        if (state.status === loadingState.loading) {
             state.status = loadingState.complete
             state.goods = action.payload
-            state.error = null
-            console.log(action.payload)
-        },
+        }
+    },
+    fetchFail(state, action) {
+        state.status = loadingState.reject
     }
 
 })
+
+export const {fetchStart, fetchSuccess, fetchFail} = goodsSlice.actions
+
+export const fetchGoods = () => async (dispatch) => {
+    try {
+        dispatch(fetchStart())
+        const response = await axios.get('http://localhost:4002/goods')
+        console.log(response.data)
+        dispatch(fetchSuccess(response.data))
+    } catch (error) {
+        dispatch(fetchFail(error))
+    }
+
+}
 
 export default goodsSlice.reducer;
