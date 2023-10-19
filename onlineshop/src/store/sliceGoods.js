@@ -30,9 +30,7 @@ const goodsSlice = createSlice({
 export const fetchGoods = () => async (dispatch) => {
     try {
         dispatch(fetchStart())
-        console.log('lll')
         const response = await axios.get('http://localhost:4002/goods')
-        console.log(response)
         dispatch(fetchSuccess(response.data))
 
     } catch (error) {
