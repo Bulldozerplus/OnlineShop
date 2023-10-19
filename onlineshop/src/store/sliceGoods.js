@@ -9,20 +9,20 @@ const goodsSlice = createSlice({
         goods: [],
         status: null,
     },
-
-    fetchStart(state, action) {
-        state.status = loadingState.loading
-    },
-    fetchSuccess(state, action) {
-        if (state.status === loadingState.loading) {
-            state.status = loadingState.complete
-            state.goods = action.payload
+        reducers: {
+            fetchStart(state, action) {
+                state.status = loadingState.loading
+            },
+            fetchSuccess(state, action) {
+                if (state.status === loadingState.loading) {
+                    state.status = loadingState.complete
+                    state.goods = action.payload
+                }
+            },
+            fetchFail(state, action) {
+                state.status = loadingState.reject
+            }
         }
-    },
-    fetchFail(state, action) {
-        state.status = loadingState.reject
-    }
-
 })
 
  const {fetchStart, fetchSuccess, fetchFail} = goodsSlice.actions
@@ -30,9 +30,11 @@ const goodsSlice = createSlice({
 export const fetchGoods = () => async (dispatch) => {
     try {
         dispatch(fetchStart())
+        console.log('lll')
         const response = await axios.get('http://localhost:4002/goods')
         console.log(response)
         dispatch(fetchSuccess(response.data))
+
     } catch (error) {
         dispatch(fetchFail(error))
     }
