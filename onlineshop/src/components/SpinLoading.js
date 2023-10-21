@@ -16,8 +16,10 @@ const SpinLoading = () => {
     );
 
     return (
-        <Spin indicator={antIcon} tip="Loading data..."/>
-            );
+        <div className='spin__box'>
+        <Spin className='spin' indicator={antIcon}/>
+            <h2 className='spin__text'>Loading data...Please wait.</h2>
+        </div> );
 };
 
 export default SpinLoading;

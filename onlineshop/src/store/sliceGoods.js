@@ -1,6 +1,6 @@
 import {createSlice} from "@reduxjs/toolkit";
-import axios from "axios";
 import {loadingState} from "../const/const";
+import {getGoodsDataFromServer} from "../services/URL";
 
 
 const goodsSlice = createSlice({
@@ -30,7 +30,7 @@ const goodsSlice = createSlice({
 export const fetchGoods = () => async (dispatch) => {
     try {
         dispatch(fetchStart())
-        const response = await axios.get('http://localhost:4002/goods')
+        const response = await getGoodsDataFromServer.getAllGoods()
         dispatch(fetchSuccess(response.data))
 
     } catch (error) {

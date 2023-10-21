@@ -1,0 +1,14 @@
+.spin__box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.spin{
+    color: #ffa01c;
+}
+
+.table{
+    background-color: #ffa01c;
+}
