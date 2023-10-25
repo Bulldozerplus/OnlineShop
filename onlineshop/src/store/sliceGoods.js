@@ -1,5 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {loadingState} from "../const/const";
+import {goodsLoadingState} from "../const/constLoadingStates";
 import {getGoodsDataFromServer} from "../services/URL";
 
 
@@ -11,16 +11,17 @@ const goodsSlice = createSlice({
     },
         reducers: {
             fetchStart(state) {
-                state.status = loadingState.loading
+                state.status = goodsLoadingState.loading
             },
             fetchSuccess(state, action) {
-                if (state.status === loadingState.loading) {
-                    state.status = loadingState.complete
+                if (state.status === goodsLoadingState.loading) {
+                    state.status = goodsLoadingState.complete
                     state.goods = action.payload
+
                 }
             },
             fetchFail(state) {
-                state.status = loadingState.reject
+                state.status = goodsLoadingState.reject
             }
         }
 })

@@ -1,13 +1,33 @@
-import React, {useState} from 'react';
-import {Table, Select, Image, Button, Modal} from "antd";
+import React, {useEffect, useState} from 'react';
+import {Button, Checkbox, Image, Modal, Select, Table} from "antd";
 import {useSelector} from "react-redux";
 import SpinLoading from "./SpinLoading";
-import {loadingState, paginationSelectValue} from "../const/const";
+import {goodsLoadingState, modalLoadingStateData} from "../const/constLoadingStates";
 import {getGoodsDataFromServer} from "../services/URL";
-
+import {paginationSelectValue} from "../const/constPagination";
+import AddInfoWindow from "./AddInfoWindow";
+import Input from "antd/es/input/Input";
 
 const GoodsList = () => {
+    const goodsPreparedData = useSelector(state => state.goods.goods)
+    const goodsStates = useSelector(state => state.goods)
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [addInfoData, setAddInfoData] = useState(null)
+    const [modalStatusLoadingData, setModalStatusLoadingData] = useState('')
+    const [checkboxFilterPriceWithDiscount, setCheckboxFilterPriceWithDiscount] = useState(false)
+    const [newData, setNewData] = useState(null)
+
+    const goodsData = goodsPreparedData.map(goods => ({...goods, key: goods.id})).map(goods => {
+        if (goods.hasDiscount) {
+            const numberInPercent = goods.discountPercent / 100
+            const sumDiscount = goods.price * numberInPercent
+            const discountPrice = goods.price - sumDiscount
+            const roundingPrice = discountPrice.toFixed()
+            return {...goods, priceWithDiscount: roundingPrice}
+        }
+        return {...goods, discountPercent: 'N/A', priceWithDiscount: 'N/A'}
+    })
+
 
 
     const handleOk = () => {
@@ -23,37 +43,35 @@ const GoodsList = () => {
         setValuePagination(value)
     }
 
+    useEffect(() => {
+        setNewData([...goodsData])
+    },[])
 
-    const goodsPreparedData = useSelector(state => state.goods.goods)
-    const goodsStates = useSelector(state => state.goods)
-
-    console.log(goodsPreparedData)
-
-    const goodsData = goodsPreparedData.map(goods => ({...goods, key: goods.id})).map(goods => {
-        if (goods.hasDiscount) {
-            const numberInPercent = goods.discountPercent / 100
-            const sumDiscount = goods.price * numberInPercent
-            const discountPrice = goods.price - sumDiscount
-            const roundingPrice = discountPrice.toFixed()
-            return {...goods, priceWithDiscount: roundingPrice}
-        }
-        return {...goods, discountPercent: 'N/A', priceWithDiscount: 'N/A'}
-    })
+    console.log(newData)
 
 
-    const [addInfoData, setAddInfoData] = useState(null)
 
     async function showModal(id) {
-        const getData = await getGoodsDataFromServer.getGoodsById(id)
-        setAddInfoData(getData.data)
-        setIsModalOpen(true);
+        try {
+            setModalStatusLoadingData(modalLoadingStateData.loading)
+
+            const getModalDataGoods = await getGoodsDataFromServer.getGoodsById(id)
+
+            setAddInfoData(getModalDataGoods.data)
+            console.log(getModalDataGoods.data)
+            setModalStatusLoadingData(modalLoadingStateData.complete)
+            setIsModalOpen(true);
+        } catch (error) {
+            setModalStatusLoadingData(modalLoadingStateData.reject)
+        }
+
     };
 
-    if (goodsStates.status === loadingState.reject) {
+    if (goodsStates.status === goodsLoadingState.reject) {
         return <div>error</div>
     }
 
-    if (goodsStates.status === loadingState.loading) {
+    if (goodsStates.status === goodsLoadingState.loading) {
         return <SpinLoading/>
     }
 
@@ -104,6 +122,13 @@ const GoodsList = () => {
             title: 'Price with Discount',
             dataIndex: 'priceWithDiscount',
             key: 'priceWithDiscount',
+            filters: [
+                {
+                    text: 'Best offers',
+                    value: 'N/A',
+                },
+            ],
+            onFilter: (value, record) => record.priceWithDiscount.indexOf(value) === -1,
         },
         {
             title: 'Currency',
@@ -135,21 +160,76 @@ const GoodsList = () => {
 
     ]
 
-    return (
-        <><Table
-            className='table'
-            dataSource={goodsData}
-            columns={columnsTableData}
-            pagination={{
-                pageSize: valuePagination
-            }}
-        />
-            <Modal title="Additional info" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                {addInfoData === null
-                    ? <h3>Loading...</h3>
-                    : <h3>{addInfoData.name}</h3>
-                }
+    function findBestOffers() {
+        setNewData(prev => prev.filter(goods => goods.hasDiscount === true))
+    }
 
+    function toggleCheckbox() {
+        if (checkboxFilterPriceWithDiscount === false) {
+            setCheckboxFilterPriceWithDiscount(true)
+            findBestOffers()
+        }
+        else{
+            setCheckboxFilterPriceWithDiscount(false)
+            setNewData([...goodsData])
+        }
+    }
+
+
+
+    return (
+        <div className='main'>
+            <div className='main__wrapper'>
+            <div className='main__filterField'>
+                <div className='main__filterField__wrapper'>
+                    <Checkbox className='main__filterField__wrapper__checkbox' onChange={toggleCheckbox}>Best offers</Checkbox>
+                    <Select className='select' defaultValue="All"
+                             style={{
+                                 width: 120,
+                             }}
+                             onChange={handleChange}
+                             options={[
+                                 {
+                                     text: 'All',
+                                     value: 'All',
+                                 },
+                                 {
+                                     text: 'phones',
+                                     value: 'phones',
+                                 },
+                                 {
+                                     text: 'TV',
+                                     value: 'TV',
+                                 },
+                                 {
+                                     text: 'kitchen',
+                                     value: 'kitchen',
+                                 },
+                                 {
+                                     text: 'computers',
+                                     value: 'computers',
+                                 },
+                             ]}/>
+                    <Input className='main__filterField__wrapper__input' placeholder='Find a product'/>
+                    <Button>Find</Button>
+                </div>
+            </div>
+            <Table
+                className='table'
+                dataSource={newData}
+                columns={columnsTableData}
+                pagination={{
+                    pageSize: valuePagination
+                }}
+
+            />
+            <Modal title="Additional info"
+                   open={isModalOpen}
+                   onOk={handleOk}
+                   onCancel={handleCancel}>
+
+                <AddInfoWindow data={addInfoData}
+                               state={modalStatusLoadingData}/>
             </Modal>
             <Select
                 defaultValue="5"
@@ -163,13 +243,19 @@ const GoodsList = () => {
                         label: '10',
                     },
                     {
+                        value: paginationSelectValue.middle,
+                        label: '5',
+                    },
+                    {
                         value: paginationSelectValue.little,
                         label: '3',
                     }
                 ]}
             />
-        </>
-    );
+        </div>
+        </div>
+    )
+        ;
 };
 
 export default GoodsList;

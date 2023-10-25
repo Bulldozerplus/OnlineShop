@@ -1,14 +1,66 @@
-.spin__box{
+.spin__box {
+    margin-top: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
 }
 
-.spin{
+.spin {
     color: #ffa01c;
 }
 
-.table{
-    background-color: #ffa01c;
+.main {
+
+}
+
+.main__wrapper {
+
+}
+
+.main__filterField {
+    margin-top: 30px;
+    margin-bottom: 30px;
+
+}
+
+.main__filterField__wrapper {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.main__filterField__wrapper__checkbox{
+    width: 100px;
+    font-weight: bolder;
+}
+
+.main__filterField__wrapper__select{
+    margin-right: 20px;
+}
+
+.main__filterField__wrapper__input{
+    margin-right: 10px;
+    margin-left: 10px;
+    border-radius: 20px;
+}
+
+.colors__phones {
+    display: flex;
+    flex-direction: row;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+}
+
+.colors__phones__color {
+    margin: 10px;
+}
+
+.reviews__name {
+    font-weight: bolder;
+}
+
+.reviews__rate {
+    font-weight: bolder;
 }
