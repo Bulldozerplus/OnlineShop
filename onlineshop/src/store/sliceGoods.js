@@ -1,6 +1,6 @@
 import {createSlice} from "@reduxjs/toolkit";
 import {goodsLoadingState} from "../const/constLoadingStates";
-import {getGoodsDataFromServer} from "../services/URL";
+import {APIservice} from "../services/URL";
 
 
 const goodsSlice = createSlice({
@@ -31,7 +31,7 @@ const goodsSlice = createSlice({
 export const fetchGoods = () => async (dispatch) => {
     try {
         dispatch(fetchStart())
-        const response = await getGoodsDataFromServer.getAllGoods()
+        const response = await APIservice.getAllGoods()
         dispatch(fetchSuccess(response.data))
 
     } catch (error) {

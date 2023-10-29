@@ -2,40 +2,45 @@ import React from 'react';
 import {modalLoadingStateData} from "../const/constLoadingStates";
 import {Card, Image, Space, Spin} from "antd";
 import SpinLoading from "./SpinLoading";
+import {useSelector} from "react-redux";
 
-const AddInfoWindow = (props) => {
-    if (props.state === modalLoadingStateData.loading) {
+const AddInfoWindow = () => {
+    const goodsDataByIdFromStorage = useSelector(state => state.currentGoods.currentGoods)
+    const goodsModalDataState = useSelector(state => state.currentGoods)
+
+
+    if (goodsModalDataState.status === modalLoadingStateData.loading) {
         return <SpinLoading/>
     }
 
-    if (props.state === modalLoadingStateData.reject) {
+    if (goodsModalDataState.status === modalLoadingStateData.reject) {
         return <div>ERROR</div>
     }
 
-    if (props.state === modalLoadingStateData.complete)
+    if (goodsModalDataState.status === modalLoadingStateData.complete)
         return (
             <div>
-                <Card title={props.data.name} style={{width: 400}}>
-                    <Image src={props.data.imgSource}/>
-                    <h2>Price: {props.data.price} {props.data.currency}</h2>
-                    {props.data.hasDiscount
-                    ? <h3>Discount: {props.data.discountPercent} %</h3>
+                <Card title={goodsDataByIdFromStorage.name} style={{width: 400}}>
+                    <Image src={goodsDataByIdFromStorage.imgSource}/>
+                    <h2>Price: {goodsDataByIdFromStorage.price} {goodsDataByIdFromStorage.currency}</h2>
+                    {goodsDataByIdFromStorage.hasDiscount
+                    ? <h3>Discount: {goodsDataByIdFromStorage.discountPercent} %</h3>
                     : <h3>Discount: 0</h3>
                 }
-                    <h4> Cashback: {props.data.cashbackPercent} %</h4>
-                    <h3>Category: {props.data.category}</h3>
-                    <p>{props.data.description}</p>
-                    {props.data.hasFreeDelivery
+                    <h4> Cashback: {goodsDataByIdFromStorage.cashbackPercent} %</h4>
+                    <h3>Category: {goodsDataByIdFromStorage.category}</h3>
+                    <p>{goodsDataByIdFromStorage.description}</p>
+                    {goodsDataByIdFromStorage.hasFreeDelivery
                         ? <p>Delivery: FREE</p>
                         : <p>Delivery: Paid</p>
                     }
-                    <h3>Colors:</h3><p className='colors__phones'>[{props.data.colors.map(color => (
+                    <h3>Colors:</h3><p className='colors__phones'>[{goodsDataByIdFromStorage.colors.map(color => (
 
                     <p className='colors__phones__color'>{color},</p>
                 ))}]</p>
-                    <p>Producing country: {props.data.country}</p>
-                    <h4>Guarantee: {props.data.guarantee.period} {props.data.guarantee.unit} </h4>
-                    <h2>Reviews:</h2><p className='reviews'>{props.data.reviews.map(fields => (
+                    <p>Producing country: {goodsDataByIdFromStorage.country}</p>
+                    <h4>Guarantee: {goodsDataByIdFromStorage.guarantee.period} {goodsDataByIdFromStorage.guarantee.unit} </h4>
+                    <h2>Reviews:</h2><p className='reviews'>{goodsDataByIdFromStorage.reviews.map(fields => (
                         <>
                             <hr/>
                             <p className='reviews__name'>{fields.name}:</p>

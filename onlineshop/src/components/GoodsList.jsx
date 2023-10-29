@@ -1,23 +1,44 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Button, Checkbox, Image, Modal, Select, Table} from "antd";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import SpinLoading from "./SpinLoading";
-import {goodsLoadingState, modalLoadingStateData} from "../const/constLoadingStates";
-import {getGoodsDataFromServer} from "../services/URL";
+import {goodsLoadingState} from "../const/constLoadingStates";
 import {paginationSelectValue} from "../const/constPagination";
 import AddInfoWindow from "./AddInfoWindow";
 import Input from "antd/es/input/Input";
+import {fetchGoodsById} from "../store/sliceGoodsById";
 
 const GoodsList = () => {
-    const goodsPreparedData = useSelector(state => state.goods.goods)
+    const goodsDataFromStore = useSelector(state => state.goods.goods)
     const goodsStates = useSelector(state => state.goods)
+    const dispatch = useDispatch()
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [addInfoData, setAddInfoData] = useState(null)
-    const [modalStatusLoadingData, setModalStatusLoadingData] = useState('')
-    const [checkboxFilterPriceWithDiscount, setCheckboxFilterPriceWithDiscount] = useState(false)
-    const [newData, setNewData] = useState(null)
+    const [valuePagination, setValuePagination] = useState(paginationSelectValue.middle)
+    const [filterBestOffers, setFilterBestOffers] = useState(false)
+    const [inputFilterValue, setInputFilterValue] = useState('')
 
-    const goodsData = goodsPreparedData.map(goods => ({...goods, key: goods.id})).map(goods => {
+    const filterByBestOffers = (g) => {
+        return filterBestOffers ? g.hasDiscount : true
+    }
+
+    const filterByInput = (g) => {
+        if (filterBestOffers === true && inputFilterValue.length > 0) {
+
+            if (g.hasDiscount === true && g.name.toLowerCase().includes(inputFilterValue.toLowerCase())) {
+                return g
+
+            }
+
+
+        }
+        if (g.name.toLowerCase().includes(inputFilterValue.toLowerCase())) {
+            return g
+        }
+
+    }
+
+
+    const goodsData = goodsDataFromStore.map(goods => ({...goods, key: goods.id})).map(goods => {
         if (goods.hasDiscount) {
             const numberInPercent = goods.discountPercent / 100
             const sumDiscount = goods.price * numberInPercent
@@ -26,9 +47,22 @@ const GoodsList = () => {
             return {...goods, priceWithDiscount: roundingPrice}
         }
         return {...goods, discountPercent: 'N/A', priceWithDiscount: 'N/A'}
+    }).filter(goods => {
+        if (filterBestOffers) {
+            return filterByBestOffers(goods)
+        }
+        if (inputFilterValue.length > 0) {
+            return filterByInput(goods)
+        } else return goods
     })
 
-
+    function changeToggle() {
+        if (filterBestOffers === false) {
+            setFilterBestOffers(true)
+        } else {
+            setFilterBestOffers(false)
+        }
+    }
 
     const handleOk = () => {
         setIsModalOpen(false);
@@ -37,35 +71,17 @@ const GoodsList = () => {
         setIsModalOpen(false);
     };
 
-    const [valuePagination, setValuePagination] = useState(paginationSelectValue.middle)
 
     function handleChange(value) {
         setValuePagination(value)
     }
 
-    useEffect(() => {
-        setNewData([...goodsData])
-    },[])
 
-    console.log(newData)
+    function showModal(id) {
+        setIsModalOpen(true);
+        dispatch(fetchGoodsById(id))
+    }
 
-
-
-    async function showModal(id) {
-        try {
-            setModalStatusLoadingData(modalLoadingStateData.loading)
-
-            const getModalDataGoods = await getGoodsDataFromServer.getGoodsById(id)
-
-            setAddInfoData(getModalDataGoods.data)
-            console.log(getModalDataGoods.data)
-            setModalStatusLoadingData(modalLoadingStateData.complete)
-            setIsModalOpen(true);
-        } catch (error) {
-            setModalStatusLoadingData(modalLoadingStateData.reject)
-        }
-
-    };
 
     if (goodsStates.status === goodsLoadingState.reject) {
         return <div>error</div>
@@ -160,99 +176,82 @@ const GoodsList = () => {
 
     ]
 
-    function findBestOffers() {
-        setNewData(prev => prev.filter(goods => goods.hasDiscount === true))
-    }
-
-    function toggleCheckbox() {
-        if (checkboxFilterPriceWithDiscount === false) {
-            setCheckboxFilterPriceWithDiscount(true)
-            findBestOffers()
-        }
-        else{
-            setCheckboxFilterPriceWithDiscount(false)
-            setNewData([...goodsData])
-        }
-    }
-
-
 
     return (
         <div className='main'>
             <div className='main__wrapper'>
-            <div className='main__filterField'>
-                <div className='main__filterField__wrapper'>
-                    <Checkbox className='main__filterField__wrapper__checkbox' onChange={toggleCheckbox}>Best offers</Checkbox>
-                    <Select className='select' defaultValue="All"
-                             style={{
-                                 width: 120,
-                             }}
-                             onChange={handleChange}
-                             options={[
-                                 {
-                                     text: 'All',
-                                     value: 'All',
-                                 },
-                                 {
-                                     text: 'phones',
-                                     value: 'phones',
-                                 },
-                                 {
-                                     text: 'TV',
-                                     value: 'TV',
-                                 },
-                                 {
-                                     text: 'kitchen',
-                                     value: 'kitchen',
-                                 },
-                                 {
-                                     text: 'computers',
-                                     value: 'computers',
-                                 },
-                             ]}/>
-                    <Input className='main__filterField__wrapper__input' placeholder='Find a product'/>
-                    <Button>Find</Button>
+                <div className='main__filterField'>
+                    <div className='main__filterField__wrapper'>
+                        <Checkbox className='main__filterField__wrapper__checkbox' onChange={changeToggle}>Best
+                            offers</Checkbox>
+                        <Select className='select' defaultValue="All"
+                                style={{
+                                    width: 120,
+                                }}
+                                onChange={handleChange}
+                                options={[
+                                    {
+                                        text: 'All',
+                                        value: 'All',
+                                    },
+                                    {
+                                        text: 'phones',
+                                        value: 'phones',
+                                    },
+                                    {
+                                        text: 'TV',
+                                        value: 'TV',
+                                    },
+                                    {
+                                        text: 'kitchen',
+                                        value: 'kitchen',
+                                    },
+                                    {
+                                        text: 'computers',
+                                        value: 'computers',
+                                    },
+                                ]}/>
+                        <Input className='main__filterField__wrapper__input' placeholder='Find a product'
+                               value={inputFilterValue} onChange={e => setInputFilterValue(e.target.value)}/>
+                    </div>
                 </div>
+                <Table
+                    className='table'
+                    dataSource={goodsData}
+                    columns={columnsTableData}
+                    pagination={{
+                        pageSize: valuePagination
+                    }}
+
+                />
+                <Modal title="Additional info"
+                       open={isModalOpen}
+                       onOk={handleOk}
+                       onCancel={handleCancel}>
+                    <AddInfoWindow/>
+                </Modal>
+                <Select
+                    defaultValue="5"
+                    style={{
+                        width: 120,
+                    }}
+                    onChange={handleChange}
+                    options={[
+                        {
+                            value: paginationSelectValue.large,
+                            label: '10',
+                        },
+                        {
+                            value: paginationSelectValue.middle,
+                            label: '5',
+                        },
+                        {
+                            value: paginationSelectValue.little,
+                            label: '3',
+                        }
+                    ]}
+                />
             </div>
-            <Table
-                className='table'
-                dataSource={newData}
-                columns={columnsTableData}
-                pagination={{
-                    pageSize: valuePagination
-                }}
-
-            />
-            <Modal title="Additional info"
-                   open={isModalOpen}
-                   onOk={handleOk}
-                   onCancel={handleCancel}>
-
-                <AddInfoWindow data={addInfoData}
-                               state={modalStatusLoadingData}/>
-            </Modal>
-            <Select
-                defaultValue="5"
-                style={{
-                    width: 120,
-                }}
-                onChange={handleChange}
-                options={[
-                    {
-                        value: paginationSelectValue.large,
-                        label: '10',
-                    },
-                    {
-                        value: paginationSelectValue.middle,
-                        label: '5',
-                    },
-                    {
-                        value: paginationSelectValue.little,
-                        label: '3',
-                    }
-                ]}
-            />
-        </div>
         </div>
     )
         ;
