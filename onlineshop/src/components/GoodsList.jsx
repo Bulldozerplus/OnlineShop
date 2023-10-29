@@ -16,6 +16,8 @@ const GoodsList = () => {
     const [valuePagination, setValuePagination] = useState(paginationSelectValue.middle)
     const [filterBestOffers, setFilterBestOffers] = useState(false)
     const [inputFilterValue, setInputFilterValue] = useState('')
+    const [filterByCategory, setFilterByCategory] = useState('')
+    console.log(filterByCategory)
 
     const filterByBestOffers = (g) => {
         return filterBestOffers ? g.hasDiscount : true
@@ -28,15 +30,15 @@ const GoodsList = () => {
     }
 
 
-    const goodsData = goodsDataFromStore.map(goods => ({...goods, key: goods.id})).map(goods => {
+    const goodsData = goodsDataFromStore.map(goods => {
         if (goods.hasDiscount) {
             const numberInPercent = goods.discountPercent / 100
             const sumDiscount = goods.price * numberInPercent
             const discountPrice = goods.price - sumDiscount
             const roundingPrice = discountPrice.toFixed()
-            return {...goods, priceWithDiscount: roundingPrice}
+            return {...goods, priceWithDiscount: roundingPrice, key: goods.id}
         }
-        return {...goods, discountPercent: 'N/A', priceWithDiscount: 'N/A'}
+        return {...goods,key: goods.id, discountPercent: 'N/A', priceWithDiscount: 'N/A'}
     }).filter(goods => {
         if (filterBestOffers && inputFilterValue.length > 0) {
             return filterByBestOffers(goods) && filterByInput(goods)
@@ -179,7 +181,7 @@ const GoodsList = () => {
                     <div className='main__filterField__wrapper'>
                         <Checkbox className='main__filterField__wrapper__checkbox' onChange={changeToggle}>Best
                             offers</Checkbox>
-                        <Select className='select' defaultValue="All"
+                        <Select value={filterByCategory} onChange={e => setFilterByCategory(e.target.value)} className='select' defaultValue="All"
                                 style={{
                                     width: 120,
                                 }}
