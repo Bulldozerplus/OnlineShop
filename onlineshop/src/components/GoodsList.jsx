@@ -38,15 +38,16 @@ const GoodsList = () => {
         }
         return {...goods, discountPercent: 'N/A', priceWithDiscount: 'N/A'}
     }).filter(goods => {
+        if (filterBestOffers && inputFilterValue.length > 0) {
+            return filterByBestOffers(goods) && filterByInput(goods)
+        }
         if (filterBestOffers) {
             return filterByBestOffers(goods)
         }
         if (inputFilterValue.length > 0) {
             return filterByInput(goods)
         }
-        if (filterBestOffers && inputFilterValue.length > 0) {
-            return filterByBestOffers(goods) && filterByInput(goods)
-        }
+
         else return goods
     })
 
