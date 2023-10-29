@@ -22,19 +22,9 @@ const GoodsList = () => {
     }
 
     const filterByInput = (g) => {
-        if (filterBestOffers === true && inputFilterValue.length > 0) {
-
-            if (g.hasDiscount === true && g.name.toLowerCase().includes(inputFilterValue.toLowerCase())) {
-                return g
-
-            }
-
-
-        }
         if (g.name.toLowerCase().includes(inputFilterValue.toLowerCase())) {
             return g
         }
-
     }
 
 
@@ -53,7 +43,11 @@ const GoodsList = () => {
         }
         if (inputFilterValue.length > 0) {
             return filterByInput(goods)
-        } else return goods
+        }
+        if (filterBestOffers && inputFilterValue.length > 0) {
+            return filterByBestOffers(goods) && filterByInput(goods)
+        }
+        else return goods
     })
 
     function changeToggle() {
