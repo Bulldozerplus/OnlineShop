@@ -1,23 +1,23 @@
 import React from 'react';
 import {modalLoadingStateData} from "../const/constLoadingStates";
-import {Card, Image, Space, Spin} from "antd";
+import {Card, Image} from "antd";
 import SpinLoading from "./SpinLoading";
 import {useSelector} from "react-redux";
 
 const AddInfoWindow = () => {
     const goodsDataByIdFromStorage = useSelector(state => state.currentGoods.currentGoods)
-    const goodsModalDataState = useSelector(state => state.currentGoods)
+    const goodsModalDataState = useSelector(state => state.currentGoods.status)
 
 
-    if (goodsModalDataState.status === modalLoadingStateData.loading) {
+    if (goodsModalDataState === modalLoadingStateData.loading) {
         return <SpinLoading/>
     }
 
-    if (goodsModalDataState.status === modalLoadingStateData.reject) {
+    if (goodsModalDataState === modalLoadingStateData.reject) {
         return <div>ERROR</div>
     }
 
-    if (goodsModalDataState.status === modalLoadingStateData.complete)
+    if (goodsModalDataState === modalLoadingStateData.complete)
         return (
             <div>
                 <Card title={goodsDataByIdFromStorage.name} style={{width: 400}}>

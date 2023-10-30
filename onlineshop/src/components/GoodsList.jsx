@@ -7,17 +7,17 @@ import {paginationSelectValue} from "../const/constPagination";
 import AddInfoWindow from "./AddInfoWindow";
 import Input from "antd/es/input/Input";
 import {fetchGoodsById} from "../store/sliceGoodsById";
+import MySelect from "./MySelect";
 
 const GoodsList = () => {
     const goodsDataFromStore = useSelector(state => state.goods.goods)
-    const goodsStates = useSelector(state => state.goods)
+    const goodsStates = useSelector(state => state.goods.status)
     const dispatch = useDispatch()
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [valuePagination, setValuePagination] = useState(paginationSelectValue.middle)
     const [filterBestOffers, setFilterBestOffers] = useState(false)
     const [inputFilterValue, setInputFilterValue] = useState('')
-    const [filterByCategory, setFilterByCategory] = useState('')
-    console.log(filterByCategory)
+    const [filterByCategoryValue, setFilterByCategoryValue] = useState('All')
 
     const filterByBestOffers = (g) => {
         return filterBestOffers ? g.hasDiscount : true
@@ -25,8 +25,20 @@ const GoodsList = () => {
 
     const filterByInput = (g) => {
         if (g.name.toLowerCase().includes(inputFilterValue.toLowerCase())) {
-            return g
+            return true
         }
+        return false
+    }
+
+    const filterByCategory = (g) => {
+        if (filterByCategoryValue === 'All') {
+            return true
+        }
+
+        if (filterByCategoryValue === g.category) {
+            return true
+        }
+        return false
     }
 
 
@@ -38,26 +50,16 @@ const GoodsList = () => {
             const roundingPrice = discountPrice.toFixed()
             return {...goods, priceWithDiscount: roundingPrice, key: goods.id}
         }
-        return {...goods,key: goods.id, discountPercent: 'N/A', priceWithDiscount: 'N/A'}
+        return {...goods, key: goods.id, discountPercent: 'N/A', priceWithDiscount: 'N/A'}
     }).filter(goods => {
-        if (filterBestOffers && inputFilterValue.length > 0) {
-            return filterByBestOffers(goods) && filterByInput(goods)
-        }
-        if (filterBestOffers) {
-            return filterByBestOffers(goods)
-        }
-        if (inputFilterValue.length > 0) {
-            return filterByInput(goods)
-        }
-
-        else return goods
+        return filterByInput(goods) && filterByBestOffers(goods) && filterByCategory(goods)
     })
 
     function changeToggle() {
         if (filterBestOffers === false) {
-            setFilterBestOffers(true)
+            setFilterBestOffers(prevState => !prevState)
         } else {
-            setFilterBestOffers(false)
+            setFilterBestOffers(prevState => !prevState)
         }
     }
 
@@ -80,11 +82,11 @@ const GoodsList = () => {
     }
 
 
-    if (goodsStates.status === goodsLoadingState.reject) {
+    if (goodsStates === goodsLoadingState.reject) {
         return <div>error</div>
     }
 
-    if (goodsStates.status === goodsLoadingState.loading) {
+    if (goodsStates === goodsLoadingState.loading) {
         return <SpinLoading/>
     }
 
@@ -99,27 +101,6 @@ const GoodsList = () => {
             title: 'Category',
             dataIndex: 'category',
             key: 'category',
-            filters: [
-                {
-                    text: 'phones',
-                    value: 'phones',
-                },
-                {
-                    text: 'TV',
-                    value: 'TV',
-                },
-                {
-                    text: 'kitchen',
-                    value: 'kitchen',
-                },
-                {
-                    text: 'computers',
-                    value: 'computers',
-                },
-
-            ],
-            onFilter: (value, record) => record.category.indexOf(value) === 0,
-
         },
         {
             title: 'Price',
@@ -135,13 +116,6 @@ const GoodsList = () => {
             title: 'Price with Discount',
             dataIndex: 'priceWithDiscount',
             key: 'priceWithDiscount',
-            filters: [
-                {
-                    text: 'Best offers',
-                    value: 'N/A',
-                },
-            ],
-            onFilter: (value, record) => record.priceWithDiscount.indexOf(value) === -1,
         },
         {
             title: 'Currency',
@@ -181,33 +155,24 @@ const GoodsList = () => {
                     <div className='main__filterField__wrapper'>
                         <Checkbox className='main__filterField__wrapper__checkbox' onChange={changeToggle}>Best
                             offers</Checkbox>
-                        <Select value={filterByCategory} onChange={e => setFilterByCategory(e.target.value)} className='select' defaultValue="All"
-                                style={{
-                                    width: 120,
-                                }}
-                                onChange={handleChange}
-                                options={[
-                                    {
-                                        text: 'All',
-                                        value: 'All',
-                                    },
-                                    {
-                                        text: 'phones',
-                                        value: 'phones',
-                                    },
-                                    {
-                                        text: 'TV',
-                                        value: 'TV',
-                                    },
-                                    {
-                                        text: 'kitchen',
-                                        value: 'kitchen',
-                                    },
-                                    {
-                                        text: 'computers',
-                                        value: 'computers',
-                                    },
-                                ]}/>
+                        <MySelect className='select__category' value={filterByCategoryValue} onChange={setFilterByCategoryValue} defaultValue='All' options={[
+                            {
+                                name: 'phones',
+                                value: 'phones'
+                            },
+                            {
+                                name: 'TV',
+                                value: 'TV'
+                            },
+                            {
+                                name: 'kitchen',
+                                value: 'kitchen'
+                            },
+                            {
+                                name: 'computers',
+                                value: 'computers'
+                            },
+                        ]}/>
                         <Input className='main__filterField__wrapper__input' placeholder='Find a product'
                                value={inputFilterValue} onChange={e => setInputFilterValue(e.target.value)}/>
                     </div>

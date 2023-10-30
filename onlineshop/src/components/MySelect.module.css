@@ -1,0 +1,14 @@
+
+
+
+.select__category{
+    width: 100px;
+    border-radius: 20px;
+    height: 23px;
+    font-size: 15px;
+}
+
+.select__category:hover{
+    height: 25px;
+    border-color: dodgerblue;
+}
