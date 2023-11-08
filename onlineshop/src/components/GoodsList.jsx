@@ -8,10 +8,12 @@ import AddInfoWindow from "./AddInfoWindow";
 import Input from "antd/es/input/Input";
 import {fetchGoodsById} from "../store/sliceGoodsById";
 import MySelect from "./MySelect";
+import {addGoodsInTheCart} from "../store/SliceGoodsInTheCart";
 
 const GoodsList = () => {
     const goodsDataFromStore = useSelector(state => state.goods.goods)
     const goodsStates = useSelector(state => state.goods.status)
+    const goodsInTheCart = useSelector(state => state.goodsInTheCart.goodsInTheCart)
     const dispatch = useDispatch()
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [valuePagination, setValuePagination] = useState(paginationSelectValue.middle)
@@ -65,9 +67,7 @@ const GoodsList = () => {
 
     const handleOk = () => {
         setIsModalOpen(false);
-    };
-    const handleCancel = () => {
-        setIsModalOpen(false);
+
     };
 
 
@@ -76,7 +76,7 @@ const GoodsList = () => {
     }
 
 
-    function showModal(id) {
+    function showModal(id, goods) {
         setIsModalOpen(true);
         dispatch(fetchGoodsById(id))
     }
@@ -139,13 +139,27 @@ const GoodsList = () => {
             title: 'Add info',
             key: 'action',
             render: (_, record) => (
-                <Button onClick={() => showModal(record.id)} size="middle">
+                <Button onClick={() => showModal(record.id, record)} size="middle">
                     Add Info
+                </Button>
+            ),
+        },
+        {
+            title: 'Add goods in the cart',
+            key: 'action',
+            render: (_, record) => (
+                <Button onClick={() => pushCurrentGoodsInTheCart(record)}>
+                    Buy
                 </Button>
             ),
         },
 
     ]
+
+    function pushCurrentGoodsInTheCart(goods) {
+        dispatch(addGoodsInTheCart(goods))
+        console.log(goodsInTheCart, 'func')
+    }
 
 
     return (
@@ -155,7 +169,8 @@ const GoodsList = () => {
                     <div className='main__filterField__wrapper'>
                         <Checkbox className='main__filterField__wrapper__checkbox' onChange={changeToggle}>Best
                             offers</Checkbox>
-                        <MySelect className='select__category' value={filterByCategoryValue} onChange={setFilterByCategoryValue} defaultValue='All' options={[
+                        <MySelect className='select__category' value={filterByCategoryValue}
+                                  onChange={setFilterByCategoryValue} defaultValue='All' options={[
                             {
                                 name: 'phones',
                                 value: 'phones'
@@ -188,8 +203,7 @@ const GoodsList = () => {
                 />
                 <Modal title="Additional info"
                        open={isModalOpen}
-                       onOk={handleOk}
-                       onCancel={handleCancel}>
+                       onOk={handleOk}>
                     <AddInfoWindow/>
                 </Modal>
                 <Select
