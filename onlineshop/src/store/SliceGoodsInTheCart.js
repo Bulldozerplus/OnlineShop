@@ -1,5 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {useSelector} from "react-redux";
+
 
 
 
@@ -11,7 +11,6 @@ const goodsSliceInTheCart = createSlice({
     },
     reducers: {
         addGoodsInTheCart(state, action){
-            
             state.goodsInTheCart.push(action.payload)
         }
     }

@@ -5,9 +5,9 @@ import {fetchGoods} from "./store/sliceGoods";
 import {Route, Routes} from "react-router-dom";
 import NavigateMenu from "./components/NavigateMenu";
 import MainMenuPage from "./Pages/MainMenuPage";
-import CartPage from "./Pages/CartPage";
 import Authorization from "./Pages/Authorization";
 import Payment from "./Pages/Payment";
+import CartPage from "./Pages/CartPage";
 
 
 function App() {
