@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Button, Checkbox, Image, Modal, Select, Table} from "antd";
+import {Button, Checkbox, Image, Modal, Select, Space, Table} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import SpinLoading from "./SpinLoading";
 import {goodsLoadingState} from "../const/constLoadingStates";
@@ -8,7 +8,7 @@ import AddInfoWindow from "./AddInfoWindow";
 import Input from "antd/es/input/Input";
 import {fetchGoodsById} from "../store/sliceGoodsById";
 import MySelect from "./MySelect";
-import {addGoodsInTheCart} from "../store/SliceGoodsInTheCart";
+import {changeGoodsInTheCart} from "../store/SliceGoodsInTheCart";
 
 const GoodsList = () => {
     const goodsDataFromStore = useSelector(state => state.goods.goods)
@@ -136,30 +136,35 @@ const GoodsList = () => {
             },
         },
         {
-            title: 'Add info',
+            title: 'Add info and buy',
             key: 'action',
             render: (_, record) => (
-                <Button onClick={() => showModal(record.id, record)} size="middle">
-                    Add Info
-                </Button>
-            ),
-        },
-        {
-            title: 'Add goods in the cart',
-            key: 'action',
-            render: (_, record) => (
-                <Button onClick={() => pushCurrentGoodsInTheCart(record)}>
-                    Buy
-                </Button>
+                <Space size="middle">
+                    <Button onClick={() => showModal(record.id, record)} size="middle">
+                        Add Info
+                    </Button>
+                    <Button onClick={() => pushCurrentGoodsInTheCart(record)}>
+                        Add goods in the cart
+                    </Button>
+                    <Button onClick={() => deleteCurrentGoodsInTheCart(record)}>
+                        Delete
+                    </Button>
+                </Space>
+
             ),
         },
 
     ]
 
     function pushCurrentGoodsInTheCart(goods) {
-        dispatch(addGoodsInTheCart(goods))
-        console.log(goodsInTheCart, 'func')
+        dispatch(changeGoodsInTheCart({name: goods.name, count: 1}))
     }
+
+
+    function deleteCurrentGoodsInTheCart(goods) {
+        dispatch(changeGoodsInTheCart({name: goods.name, count: -1}))
+    }
+
 
 
     return (

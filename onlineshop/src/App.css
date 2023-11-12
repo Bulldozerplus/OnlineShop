@@ -98,12 +98,16 @@
 }
 
 .button{
-    margin-left: 20px;
-    margin-top: 30px;
+    margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 .button__wrap{
     display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
 }
 
 .cart__page__wrapper{

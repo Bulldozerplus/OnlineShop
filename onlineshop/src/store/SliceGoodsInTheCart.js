@@ -1,22 +1,24 @@
 import {createSlice} from "@reduxjs/toolkit";
 
 
-
-
 const goodsSliceInTheCart = createSlice({
     name: 'goodsInTheCart',
     initialState: {
-        goodsInTheCart: [],
+        goodsInTheCart: {},
         status: null,
     },
     reducers: {
-        addGoodsInTheCart(state, action){
-            state.goodsInTheCart.push(action.payload)
+        changeGoodsInTheCart(state, action) {
+            if (!state.goodsInTheCart[action.payload.name]) {
+                state.goodsInTheCart[action.payload.name] = action.payload.count
+            } else {
+                state.goodsInTheCart[action.payload.name] += action.payload.count
+            }
         }
     }
 })
 
-export const {addGoodsInTheCart} = goodsSliceInTheCart.actions
+export const {changeGoodsInTheCart} = goodsSliceInTheCart.actions
 
 
 export default goodsSliceInTheCart.reducer
