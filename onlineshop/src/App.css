@@ -13,7 +13,7 @@
 .navigate {
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly ;
+    justify-content: space-evenly;
 }
 
 .navigate__link {
@@ -24,11 +24,10 @@
     text-decoration: none;
     color: black;
     border-radius: 10px;
-    border: black solid 2px;
     padding: 3px;
 }
 
-.navigate__link:hover{
+.navigate__link:hover {
     color: dodgerblue;
     -webkit-text-stroke-color: black;
     -webkit-text-stroke-width: 1px;
@@ -36,11 +35,12 @@
 }
 
 .main {
-    border: solid 1px red;
+    position: absolute;
+    right: -215px;
 }
 
 .main__wrapper {
-    border: dodgerblue solid 1px;
+    position: relative;
 }
 
 .main__filterField {
@@ -70,6 +70,7 @@
     border-radius: 20px;
 }
 
+
 .colors__phones {
     display: flex;
     flex-direction: row;
@@ -90,19 +91,41 @@
     font-weight: bolder;
 }
 
-.cart__page{
-    border: solid 1px red;
+.cart__page {
     display: flex;
     margin-top: 30px;
     flex-wrap: wrap;
 }
 
-.button{
+.cart__link{
+    color: red;
+    font-size: 100px;
+    -webkit-text-stroke-color: black;
+    -webkit-text-stroke-width: 1px;
+}
+
+.cart__link:hover{
+    color: darkred;
+    -webkit-text-stroke-color: black;
+    -webkit-text-stroke-width: 1px;
+    font-size: 100px;
+
+}
+
+.card__cart__goods {
+    width: 100%;
+}
+
+.card__cart__total {
+    width: 100%;
+}
+
+.button {
     margin-bottom: 10px;
     margin-top: 10px;
 }
 
-.button__wrap{
+.button__wrap {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -110,8 +133,7 @@
 
 }
 
-.cart__page__wrapper{
-    border: dodgerblue solid 1px;
+.cart__page__wrapper {
     max-width: 800px;
     overflow: auto;
     position: relative;

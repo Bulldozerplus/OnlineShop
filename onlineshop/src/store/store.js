@@ -6,6 +6,6 @@ export const store = configureStore({
     reducer: {
         goods: goodsReducer,
         currentGoods: goodsByIdReducer,
-        goodsInTheCart: goodsSliceInTheCart
+        shoppingCart: goodsSliceInTheCart
     },
 })

@@ -9,24 +9,38 @@ const goodsSlice = createSlice({
         goods: [],
         status: null,
     },
-        reducers: {
-            fetchStart(state) {
-                state.status = goodsLoadingState.loading
-            },
-            fetchSuccess(state, action) {
-                if (state.status === goodsLoadingState.loading) {
-                    state.status = goodsLoadingState.complete
-                    state.goods = action.payload
-
-                }
-            },
-            fetchFail(state) {
-                state.status = goodsLoadingState.reject
+    reducers: {
+        fetchStart(state) {
+            state.status = goodsLoadingState.loading
+        },
+        fetchSuccess(state, action) {
+            if (state.status === goodsLoadingState.loading) {
+                state.status = goodsLoadingState.complete
+                state.goods = action.payload.map(goods => {
+                    if (goods.hasDiscount) {
+                        const numberInPercent = goods.discountPercent / 100
+                        const sumDiscount = goods.price * numberInPercent
+                        const discountPrice = goods.price - sumDiscount
+                        const roundingPrice = parseInt(discountPrice.toFixed())
+                        const priceDifferenceWithoutDiscount = goods.price - roundingPrice
+                        return {
+                            ...goods,
+                            priceWithDiscount: roundingPrice,
+                            differencePrice: priceDifferenceWithoutDiscount,
+                            key: goods.id
+                        }
+                    }
+                    return {...goods, key: goods.id, discountPercent: 0, priceWithDiscount: 'N/A'}
+                })
             }
+        },
+        fetchFail(state) {
+            state.status = goodsLoadingState.reject
         }
+    }
 })
 
- const {fetchStart, fetchSuccess, fetchFail} = goodsSlice.actions
+const {fetchStart, fetchSuccess, fetchFail} = goodsSlice.actions
 
 export const fetchGoods = () => async (dispatch) => {
     try {

@@ -3,6 +3,7 @@ import {Link, Outlet} from "react-router-dom";
 
 
 const NavigateMenu = () => {
+
     return (
         <div>
             <header className='navigate'>

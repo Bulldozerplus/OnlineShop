@@ -2,95 +2,82 @@ import React from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {Button, Card} from "antd";
 import {changeGoodsInTheCart} from "../store/SliceGoodsInTheCart";
+import {Link} from "react-router-dom";
 
 const CartPageList = () => {
         const dispatch = useDispatch()
-        const goodsInTheCart = useSelector(state => state.goodsInTheCart.goodsInTheCart)
-        const goodsFromServer = useSelector(state => state.goods.goods)
-        const goodsInTheCartArrayFromRender = Object.entries(goodsInTheCart)
+        const shoppingCardGoodsData = useSelector(state => state.shoppingCart.shoppingCart)
 
 
-        const goodsDataList = goodsFromServer.map(goods => {
-            if (goods.hasDiscount) {
-                const numberInPercent = goods.discountPercent / 100
-                const sumDiscount = goods.price * numberInPercent
-                const discountPrice = goods.price - sumDiscount
-                const roundingPrice = discountPrice.toFixed()
-                return {...goods, priceWithDiscount: parseInt(roundingPrice), key: goods.id}
+        const shoppingCardGoodsDataInArray = Object.entries(shoppingCardGoodsData).map(el => el[1]).filter(goods => goods.count > 0)
+        const totalSum = shoppingCardGoodsDataInArray.reduce((prev, current) => {
+            return prev + (current.price * current.count)
+        }, 0)
+
+
+        const cashback = shoppingCardGoodsDataInArray.map(goods => {
+            if (goods.cashbackPercent !== 0) {
+                const numberInPercent = goods.cashbackPercent / 100
+                const sumDiscountCashback = goods.price * numberInPercent
+                console.log(sumDiscountCashback)
+                return {
+                    ...goods,
+                    key: goods.id,
+                    cashback: sumDiscountCashback
+                }
             }
-            return {...goods, key: goods.id}
+            console.log(goods, 'without')
+            return {
+                ...goods,
+                cashback: 0
+            }
         })
 
-        console.log(goodsDataList)
+        const totalCashback = cashback.reduce((prev, current) => {
+            if (current.cashback !== 0) {
+                return Math.round(prev + (current.cashback * current.count))
+            } else {
+                return Math.round(prev + current.cashback)
+            }
+        }, 0)
 
 
-        function pushCurrentGoodsInTheCart(nameGoods) {
-            dispatch(changeGoodsInTheCart({name: nameGoods, count: 1}))
+        const totalDiscount = shoppingCardGoodsDataInArray.reduce((prev, current) => {
+            if (current.differencePrice) {
+                return prev + (current.differencePrice * current.count)
+            } else {
+                 return prev + 0
+            }
+        }, 0)
+
+        function pushCurrentGoodsInTheCart(goods) {
+            dispatch(changeGoodsInTheCart({...goods, count: +1}))
         }
 
 
-        function deleteCurrentGoodsInTheCart(nameGoods) {
-            dispatch(changeGoodsInTheCart({name: nameGoods, count: -1}))
+        function deleteCurrentGoodsInTheCart(goods) {
+            dispatch(changeGoodsInTheCart({...goods, count: -1}))
         }
-
-        const currentPrice = (nameGoods, goodsList) => {
-            const currentGoods = goodsList.filter(goods => goods.name === nameGoods)
-            const [currentPrice] = currentGoods
-            console.log(currentPrice)
-            return currentPrice.price
-        }
-
-        const preliminaryPrice = {}
-        const overallBenefit = {}
-        const countTotalPriceAndBenefits = (cartListArr, goodList) => {
-            cartListArr.forEach(([nameGoods, count]) => {
-                const filteredGoods = goodList.find(currentGoodsData => currentGoodsData.name === nameGoods)
-                if (!preliminaryPrice[nameGoods] && filteredGoods.priceWithDiscount) {
-                    preliminaryPrice[nameGoods] = filteredGoods.priceWithDiscount * count
-                } else {
-                    preliminaryPrice[nameGoods] = filteredGoods.price * count
-                }
-
-                if (!overallBenefit[nameGoods] && filteredGoods.priceWithDiscount) {
-                    overallBenefit[nameGoods] = filteredGoods.price - filteredGoods.priceWithDiscount
-                }
-                if (overallBenefit[nameGoods] && filteredGoods.priceWithDiscount) {
-                    overallBenefit[nameGoods] += (filteredGoods.price - filteredGoods.priceWithDiscount) * count
-                }
-            })
-        }
-
-        console.log(overallBenefit)
-        countTotalPriceAndBenefits(goodsInTheCartArrayFromRender, goodsDataList)
-
-        const priceDataToArr = Object.values(preliminaryPrice)
-        const totalPrice = priceDataToArr.reduce((prev, current) => prev + current, 0)
-
-        const overallBenefitFromRender = Object.values(overallBenefit).reduce((prev, current) => prev + current, 0)
-        console.log(overallBenefitFromRender)
-
 
         return (
             <div className='cart__page'>
                 <div className='cart__page__wrapper'>
-                    {goodsInTheCartArrayFromRender.length === 0
-                        ? <div>Cart is empty</div>
-                        : goodsInTheCartArrayFromRender.map(([nameGoods, count]) => (
-                            <Card title={nameGoods} bordered={true}>
-                                <h4>Quantity of goods in the cart - {count}</h4>
-                                <h3> price from 1 product = {currentPrice(nameGoods, goodsFromServer)}</h3>
-                                <h3> total price = {count * currentPrice(nameGoods, goodsFromServer)}</h3>
-                                <div className='button__wrap'>
-                                    <Button className='button' onClick={() => pushCurrentGoodsInTheCart(nameGoods)}>Add
-                                        goods</Button>
-                                    <Button onClick={() => deleteCurrentGoodsInTheCart(nameGoods)}>Delete
-                                        goods</Button>
-                                </div>
+                    {shoppingCardGoodsDataInArray.length === 0
+                        ? <h2>Cart is empty - <Link className='cart__link' to='/'>welcome to shopping</Link></h2>
+                        : shoppingCardGoodsDataInArray.map(currentGoodsData => (
+                            <Card className='card__cart__goods' title={currentGoodsData.name}>
+                                <h3>{currentGoodsData.price}</h3>
+                                <h4>{currentGoodsData.count}</h4>
+                                <Button onClick={() => pushCurrentGoodsInTheCart(currentGoodsData)}>Add goods</Button>
+                                <Button onClick={() => deleteCurrentGoodsInTheCart(currentGoodsData)}>Delete goods</Button>
                             </Card>
                         ))
                     }
-                    <h2>Total price - {totalPrice}</h2>
-                    <h3>Total discount - {overallBenefitFromRender}</h3>
+                    <Card className='card__cart__total'>
+                    <h2>Total SUM - {totalSum}</h2>
+                    <h2>Total ECONOMY - {totalDiscount}</h2>
+                    <h2>Your total CASHBACK - {totalCashback}</h2>
+                    </Card>
                 </div>
             </div>
         );

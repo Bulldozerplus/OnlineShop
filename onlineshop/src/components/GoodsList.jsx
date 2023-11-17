@@ -13,7 +13,6 @@ import {changeGoodsInTheCart} from "../store/SliceGoodsInTheCart";
 const GoodsList = () => {
     const goodsDataFromStore = useSelector(state => state.goods.goods)
     const goodsStates = useSelector(state => state.goods.status)
-    const goodsInTheCart = useSelector(state => state.goodsInTheCart.goodsInTheCart)
     const dispatch = useDispatch()
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [valuePagination, setValuePagination] = useState(paginationSelectValue.middle)
@@ -44,16 +43,7 @@ const GoodsList = () => {
     }
 
 
-    const goodsData = goodsDataFromStore.map(goods => {
-        if (goods.hasDiscount) {
-            const numberInPercent = goods.discountPercent / 100
-            const sumDiscount = goods.price * numberInPercent
-            const discountPrice = goods.price - sumDiscount
-            const roundingPrice = discountPrice.toFixed()
-            return {...goods, priceWithDiscount: roundingPrice, key: goods.id}
-        }
-        return {...goods, key: goods.id, discountPercent: 'N/A', priceWithDiscount: 'N/A'}
-    }).filter(goods => {
+    const goodsData = goodsDataFromStore.filter(goods => {
         return filterByInput(goods) && filterByBestOffers(goods) && filterByCategory(goods)
     })
 
@@ -63,6 +53,10 @@ const GoodsList = () => {
         } else {
             setFilterBestOffers(prevState => !prevState)
         }
+    }
+
+    const handleCancel = () => {
+        setIsModalOpen(false)
     }
 
     const handleOk = () => {
@@ -76,7 +70,7 @@ const GoodsList = () => {
     }
 
 
-    function showModal(id, goods) {
+    function showModal(id) {
         setIsModalOpen(true);
         dispatch(fetchGoodsById(id))
     }
@@ -157,12 +151,12 @@ const GoodsList = () => {
     ]
 
     function pushCurrentGoodsInTheCart(goods) {
-        dispatch(changeGoodsInTheCart({name: goods.name, count: 1}))
+        dispatch(changeGoodsInTheCart({count: 1, ...goods}))
     }
 
 
     function deleteCurrentGoodsInTheCart(goods) {
-        dispatch(changeGoodsInTheCart({name: goods.name, count: -1}))
+        dispatch(changeGoodsInTheCart({count: -1, ...goods}))
     }
 
 
@@ -208,6 +202,7 @@ const GoodsList = () => {
                 />
                 <Modal title="Additional info"
                        open={isModalOpen}
+                       onCancel={handleCancel}
                        onOk={handleOk}>
                     <AddInfoWindow/>
                 </Modal>
